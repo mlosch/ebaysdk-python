@@ -244,8 +244,12 @@ def dict2xml(root):
 
             else:
                 value = root[key]
-                xml = str('{xml}<{tag}>{value}</{tag}>') \
-                    .format(**{'xml': str(xml), 'tag': key, 'value': smart_encode(value)})
+                if key == 'XML':
+                    xml = str('{xml}{value}') \
+                        .format(**{'xml': str(xml), 'value': smart_encode(value)})
+                else:
+                    xml = str('{xml}<{tag}>{value}</{tag}>') \
+                        .format(**{'xml': str(xml), 'tag': key, 'value': smart_encode(value)})
 
     elif isinstance(root, str) or isinstance(root, int) \
         or isinstance(root, unicode) or isinstance(root, long) \
