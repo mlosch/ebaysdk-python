@@ -10,6 +10,7 @@ import os
 
 from ebaysdk import log
 from ebaysdk.connection import BaseConnection
+from ebaysdk.exception import RequestPaginationError, PaginationLimit
 from ebaysdk.config import Config
 from ebaysdk.utils import getNodeText, dict2xml
 
@@ -252,3 +253,20 @@ class Connection(BaseConnection):
             return errors
 
         return []
+
+    def response_content(self):
+        return super(Connection, self).response_content()
+
+    def next_page(self):
+        if type(self._request_dict) is not dict:
+            raise RequestPaginationError("request data is not of type dict", self.response)
+
+        num = int(self.response.reply.PageNumber)
+
+        if num >= int(self.response.reply.ApproximatePages):
+            raise PaginationLimit("no more pages to process", self.response)
+            return None
+
+        self._request_dict['PageNumber'] = int(num) + 1
+
+        return self.execute(self.verb, self._request_dict)
